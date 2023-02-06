@@ -20,14 +20,6 @@ public class PageManager {
     private DepositsPage depositsPage;
 
     /**
-     * Конструктор специально был объявлен как private (singleton паттерн)
-     *
-     * @see PageManager#getPageManager()
-     */
-    private PageManager() {
-    }
-
-    /**
      * Ленивая инициализация PageManager
      *
      * @return PageManager

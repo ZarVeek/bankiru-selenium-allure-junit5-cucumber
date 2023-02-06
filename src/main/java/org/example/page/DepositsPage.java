@@ -1,7 +1,6 @@
 package org.example.page;
 
 import io.qameta.allure.Step;
-import org.example.utils.Deposit;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -37,92 +36,125 @@ public class DepositsPage extends BasePage{
         waitUtilElementToBeClickable(settings).click();
         return this;
     }
-    @Step("Ввод/Выбор значения \"{value}\" в поле \"{fieldName}\"")
-    public DepositsPage valueInput(String fieldName, String... value) {
-        switch (fieldName) {
-            case "Сумма":
-                WebElement inputField = depositInputFields.stream()
-                        .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
-                                .getText().contains(fieldName))
-                        .findAny()
-                        .get();
-                inputField.sendKeys(value);
-                break;
-            case "Срок":
-            case "Тип вклада":
-                WebElement periodDropDownField = depositInputFields.stream()
-                        .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
-                                .getText().contains(fieldName))
-                        .map(element -> element.findElement(By.xpath(".//following-sibling::div[@data-test=\"dropdown\"]")))
-                        .findAny()
-                        .get();
-                periodDropDownField.click();
-                dropDownList.stream()
-                        .filter(element -> element.findElement(By.xpath("./div")).getText()
-                                .contains(value[0]))
-                        .findAny()
-                        .get()
-                        .click();
-                break;
-            case "Банки":
-                WebElement banksDropDownField = depositInputFields.stream()
-                        .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
-                                .getText().contains(fieldName))
-                        .map(element -> element.findElement(By.xpath(".//..")))
-                        .findAny()
-                        .get();
-                banksDropDownField.click();
-                for (String bankName : value) {
-                    WebElement bank = dropDownList.stream()
-                            .filter(element -> element.getText().contains(bankName))
-                            .findAny()
-                            .get();
-                    bank.click();
-                }
-                banksDropDownField.click();
-                break;
-            case "Опции":
-                for (String option : value) {
-                    WebElement checkBox = depositCheckbox.stream()
-                            .filter(element -> element.getText().contains(option))
-                            .findAny()
-                            .get();
-                    checkBox.click();
-                }
-                break;
-            default:
-                Assertions.fail("Поле " + fieldName + " отсутствует");
-        }
-        waitStabilityPage(5000, 250);
+    public DepositsPage depositValueInput(String value) {
+        depositInputFields.stream()
+                .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
+                        .getText().contains("Сумма"))
+                .findAny()
+                .get().sendKeys(value);
+        waitStabilityPage(2000, 250);
         return this;
     }
-    @Step("Показать резульаты")
+
+    public DepositsPage depositPeriodChoosing(String period) {
+        WebElement periodDropDownField = depositInputFields.stream()
+                .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
+                        .getText().contains("Срок"))
+                .map(element -> element.findElement(By.xpath(".//following-sibling::div[@data-test=\"dropdown\"]")))
+                .findAny()
+                .get();
+        periodDropDownField.click();
+        dropDownList.stream()
+                .filter(element -> element.findElement(By.xpath("./div")).getText()
+                        .contains(period))
+                .findAny()
+                .get()
+                .click();
+        waitStabilityPage(2000, 250);
+        return this;
+    }
+
+    public DepositsPage depositTypeChoosing(String type) {
+        WebElement depositTypeDropDownField = depositInputFields.stream()
+                .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
+                        .getText().contains("Тип вклада"))
+                .map(element -> element.findElement(By.xpath(".//following-sibling::div[@data-test=\"dropdown\"]")))
+                .findAny()
+                .get();
+        depositTypeDropDownField.click();
+        dropDownList.stream()
+                .filter(element -> element.findElement(By.xpath("./div")).getText().contains(type))
+                .findAny()
+                .get()
+                .click();
+        waitStabilityPage(2000, 250);
+        return this;
+    }
+
+    public DepositsPage bankChoosing(List<String> banks) {
+        WebElement banksDropDownField = depositInputFields.stream()
+                .filter(element -> element.findElement(By.xpath(".//following-sibling::label"))
+                        .getText().contains("Банки"))
+                .map(element -> element.findElement(By.xpath(".//..")))
+                .findAny()
+                .get();
+        banksDropDownField.click();
+        for (String bankName : banks) {
+            if (bankName != null) {
+                WebElement bank = dropDownList.stream()
+                        .filter(element -> element.getText().contains(bankName))
+                        .findAny()
+                        .get();
+                bank.click();
+            } else {
+                break;
+            }
+        }
+        banksDropDownField.click();
+        waitStabilityPage(2000, 250);
+        return this;
+    }
+
+    public DepositsPage additionalsChoosing(List<String> additionals) {
+        for (String additional : additionals) {
+            if (additional != null) {
+                WebElement checkBox = depositCheckbox.stream()
+                        .filter(element -> element.getText().contains(additional))
+                        .findAny()
+                        .get();
+                checkBox.click();
+            } else {
+                break;
+            }
+        }
+        waitStabilityPage(2000, 250);
+        return this;
+    }
+
     public DepositsPage showResults(){
         waitUtilElementToBeClickable(showResults).click();
         return this;
     }
-    @Step("Проверка значения")
-    public DepositsPage checkResults(String fieldName, Deposit deposit){
-        WebElement bank = findBank(deposit.getBankName());
-        switch (fieldName){
-            case("Процент"):
-                Assertions.assertEquals(bank.findElement(By.xpath
-                                ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 kXNqNV\"]/div/div[@class=\"Text___sc-14s2757-0 eTCAlU\"]"))
-                        .getText(), deposit.getRate(), "Процент не равен полученному");
-                break;
-            case ("Срок"):
-                Assertions.assertEquals(bank.findElement(By.xpath
-                                ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 faTYeO\"]/div/div[@class=\"Text___sc-14s2757-0 kLOrRe\"]"))
-                        .getText(), deposit.getPeriod(), "Срок не равен полученному");
-                break;
-            case ("Доход"):
-                Assertions.assertEquals(bank.findElement(By.xpath
-                                ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 gIhVqs\"]/div/div[@class=\"Text___sc-14s2757-0 kLOrRe\"]"))
-                        .getText(), deposit.getSalary(), "Доход не равен полученному");
-                break;
-        }
+
+    public DepositsPage checkSuitableDepositsAmount(String amount) {
+        Assertions.assertEquals(amount,valueTextHandler(countResults.getText()),
+                "Количество подходящих вкладов не соответствует " + amount);
         return this;
     }
+
+
+    public DepositsPage checkRate(String bankName, String value){
+        WebElement bank = findBank(bankName);
+        Assertions.assertEquals(bank.findElement(By.xpath
+                        ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 kXNqNV\"]/div/div[@class=\"Text___sc-14s2757-0 eTCAlU\"]"))
+                .getText(), value, "Процент не равен полученному");
+        return this;
+    }
+    public DepositsPage checkPeriodChoosing(String bankName, String value){
+        WebElement bank = findBank(bankName);
+        Assertions.assertEquals(bank.findElement(By.xpath
+                        ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 faTYeO\"]/div/div[@class=\"Text___sc-14s2757-0 kLOrRe\"]"))
+                .getText(), value, "Срок не равен полученному");
+        return this;
+    }
+    public DepositsPage checkSalary(String bankName, String value){
+        WebElement bank = findBank(bankName);
+        Assertions.assertEquals(bank.findElement(By.xpath
+                        ("./section/div/div/div/div/div/div[@class=\"styled__StyledDepositColumn-sc-y83ypp-0 gIhVqs\"]/div/div[@class=\"Text___sc-14s2757-0 kLOrRe\"]"))
+                .getText(), value, "Доход не равен полученному");
+        return this;
+    }
+
 
     private WebElement findBank(String bankName) {
         for (WebElement bank: banks) {

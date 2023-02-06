@@ -21,7 +21,7 @@ public class DriverManager {
     /**
      * Переменна для хранения объекта DriverManager
      */
-    private static DriverManager INSTANCE = null;
+    private static DriverManager INSTANCE;
 
     /**
      * Менеджер properties
@@ -33,7 +33,7 @@ public class DriverManager {
     /**
      * Конструктор специально был объявлен как private (singleton паттерн)
      *
-     * @see DriverManager#getDriverManager()
+     * @see DriverManager#getInstance()
      */
     private DriverManager() {
     }
@@ -43,7 +43,7 @@ public class DriverManager {
      *
      * @return DriverManager - возвращает DriverManager
      */
-    public static DriverManager getDriverManager() {
+    public static DriverManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new DriverManager();
         }

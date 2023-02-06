@@ -1,9 +1,8 @@
 package org.example.managers;
 
-import java.util.concurrent.TimeUnit;
+import org.example.utils.PropConst;
 
-import static org.example.utils.PropConst.IMPLICITLY_WAIT;
-import static org.example.utils.PropConst.PAGE_LOAD_TIMEOUT;
+import java.util.concurrent.TimeUnit;
 
 public class InitManager {
     /**
@@ -16,9 +15,9 @@ public class InitManager {
     /**
      * Менеджер WebDriver
      *
-     * @see DriverManager#getDriverManager()
+     * @see DriverManager#getInstance()
      */
-    private static final DriverManager driverManager = DriverManager.getDriverManager();
+    private static final DriverManager driverManager = DriverManager.getInstance();
 
     /**
      * Инициализация framework и запуск браузера со страницей приложения
@@ -28,17 +27,20 @@ public class InitManager {
      * @see org.example.utils.PropConst
      */
     public static void initFramework() {
+        driverManager.getDriver().manage().timeouts()
+                .pageLoadTimeout(Long.parseLong(props.getProperty(PropConst.PAGE_LOAD_TIMEOUT)), TimeUnit.SECONDS);
+        driverManager.getDriver().manage().timeouts()
+                .implicitlyWait(Long.parseLong(props.getProperty(PropConst.IMPLICITLY_WAIT)), TimeUnit.SECONDS);
         driverManager.getDriver().manage().window().maximize();
-        driverManager.getDriver().manage().timeouts().implicitlyWait(Integer.parseInt(props.getProperty(IMPLICITLY_WAIT)), TimeUnit.SECONDS);
-        driverManager.getDriver().manage().timeouts().pageLoadTimeout(Integer.parseInt(props.getProperty(PAGE_LOAD_TIMEOUT)), TimeUnit.SECONDS);
+        driverManager.getDriver().get(props.getProperty(PropConst.BASE_URL));
     }
 
-    /**
-     * Завершения работы framework - гасит драйвер и закрывает сессию с браузером
-     *
-     * @see DriverManager#quitDriver()
-     */
     public static void quitFramework() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         driverManager.quitDriver();
     }
 }

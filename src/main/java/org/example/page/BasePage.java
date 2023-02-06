@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BasePage {
-    private final DriverManager driverManager = DriverManager.getDriverManager();
+    private final DriverManager driverManager = DriverManager.getInstance();
     private final JavascriptExecutor js = (JavascriptExecutor) driverManager.getDriver();
     private final WebDriverWait wait = new WebDriverWait(driverManager.getDriver(), 10, 1000);
 
@@ -59,5 +59,9 @@ public class BasePage {
 
     protected List<String> toList(String value){
         return Arrays.asList(value.split(","));
+    }
+
+    protected String valueTextHandler(String guarantee) {
+        return guarantee.replaceAll("\\D", "");
     }
 }

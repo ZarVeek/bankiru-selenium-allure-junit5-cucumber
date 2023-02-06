@@ -1,6 +1,5 @@
 package org.example.page;
 
-import io.qameta.allure.Step;
 import org.example.managers.PageManager;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
@@ -15,12 +14,10 @@ public class HomePage extends BasePage{
     @FindBy(xpath = "//a[@class=\"main-menu__sections-link\" and text() = \"Вклады\"]")
     WebElement contribution;
 
-    @Step("Проверка открытия страницы")
     public HomePage checkOpenPage(){
         Assertions.assertTrue(waitUtilElementToBeVisible(title).isDisplayed(), "Гланая старничка не открылась");
         return this;
     }
-    @Step("Нажатие на кнопку вклады")
     public DepositsPage contributionClick(){
         contribution.click();
         return PageManager.getPageManager().getDepositsPage();
